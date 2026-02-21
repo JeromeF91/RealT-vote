@@ -1,12 +1,48 @@
 # RealT-vote
 
-Scrape [vote.realtoken.network](https://vote.realtoken.network) asset vote pages for **Listing Price** and **Estimated total cost of sales** (e.g. [assets/100818/vote/19](https://vote.realtoken.network/assets/100818/vote/19)).
+Scrape [vote.realtoken.network/assets](https://vote.realtoken.network/assets) for each asset: **name**, **Listing Price (USD)**, and **fees** (Estimated total cost of sales). The list page shows asset cards (e.g. "19980 Alcoy", "20553 Pelkey"); for each asset the script visits the vote page and extracts the two amounts from the proposal text.
 
 ## Quick start
 
 ```bash
 npm install
 ```
+
+### Scrape the assets list (name, listing price, fees)
+
+**Recommended:** Get the asset list from the same API as the vote site, then scrape each asset’s vote page:
+
+```bash
+npm run scrape -- --from-api --out assets.csv
+```
+
+This calls `https://api.realtoken.network/graphql` (no browser needed for the list) to get all asset IDs, then uses a browser to visit each asset and its vote page for name, listing price, and fees.
+
+Other options:
+
+```bash
+# Use a local list (e.g. asset-ids.txt)
+npm run scrape -- --urls asset-ids.txt --out assets.csv
+
+# Try scraping the list from the /assets page (needs wallet on Gnosis in headful)
+npm run scrape -- --out assets.csv
+```
+
+**Refresh the asset ID list** (writes `asset-ids.txt`):
+
+```bash
+node scripts/fetch-asset-ids-from-api.js --out asset-ids.txt
+```
+
+To get listing price and fees to actually fill, the vote pages must load the proposal body—run with a visible browser and wallet connected to **Gnosis**:
+
+```bash
+npm run scrape:headful -- --out assets.csv
+```
+
+Output columns: `name`, `listing_price_usd`, `fees_usd`, `asset_url`.
+
+---
 
 ### Option 1: Parse from pasted proposal text
 

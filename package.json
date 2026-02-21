@@ -7,7 +7,9 @@
     "scrape": "node scripts/scrape-assets.js",
     "scrape:headful": "HEADFUL=1 node scripts/scrape-assets.js",
     "scrape:votes": "node scripts/scrape-vote-pages.js",
-    "scrape:votes:headful": "HEADFUL=1 node scripts/scrape-vote-pages.js"
+    "scrape:votes:headful": "HEADFUL=1 node scripts/scrape-vote-pages.js",
+    "fetch-asset-ids": "node scripts/fetch-asset-ids.js",
+    "fetch-asset-ids:api": "node scripts/fetch-asset-ids-from-api.js"
   },
   "dependencies": {
     "puppeteer": "^23.0.0"

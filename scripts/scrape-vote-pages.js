@@ -13,7 +13,7 @@
  */
 
 import puppeteer from 'puppeteer';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { resolve } from 'path';
 
 const DEFAULT_URLS = ['https://vote.realtoken.network/assets/100818/vote/19'];
@@ -127,7 +127,19 @@ async function main() {
     return;
   }
 
-  const urls = argv.filter((a) => a.startsWith('http'));
+  const outIdx = argv.indexOf('--out');
+  const outPath = outIdx !== -1 && argv[outIdx + 1] ? resolve(argv[outIdx + 1]) : null;
+  const urlsIdx = argv.indexOf('--urls');
+  let urls = argv.filter((a) => a.startsWith('http'));
+  if (urlsIdx !== -1 && argv[urlsIdx + 1]) {
+    const p = resolve(argv[urlsIdx + 1]);
+    if (existsSync(p)) {
+      urls = readFileSync(p, 'utf8')
+        .split('\n')
+        .map((s) => s.trim())
+        .filter((s) => s && s.startsWith('http'));
+    }
+  }
   const toScrape = urls.length ? urls : DEFAULT_URLS;
 
   const browser = await puppeteer.launch({
@@ -196,6 +208,16 @@ async function main() {
       console.log(
         `${(r.label || r.url).slice(0, 45).padEnd(46)} | ${(r.listingPriceUsd ?? '—').toString().padEnd(20)} | ${r.estimatedCostUsd ?? '—'}`
       );
+    }
+
+    if (outPath) {
+      const header = 'url,label,listing_price_usd,estimated_cost_of_sales_usd';
+      const rows = results.map(
+        (r) =>
+          `"${(r.url || '').replace(/"/g, '""')}","${(r.label || '').replace(/"/g, '""')}",${r.listingPriceUsd ?? ''},${r.estimatedCostUsd ?? ''}`
+      );
+      writeFileSync(outPath, [header, ...rows].join('\n'), 'utf8');
+      console.error('\nWrote', results.length, 'rows to', outPath);
     }
 
     // JSON for piping

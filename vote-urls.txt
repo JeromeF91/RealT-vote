@@ -1,0 +1,2 @@
+# One vote page URL per line (lines starting with # are ignored)
+https://vote.realtoken.network/assets/100818/vote/19
