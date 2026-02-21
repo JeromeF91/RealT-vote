@@ -1,0 +1,15 @@
+{
+  "name": "realt-vote-scraper",
+  "version": "1.0.0",
+  "description": "Scrape vote.realtoken.network/assets for Listing Price and Estimated cost of sales",
+  "type": "module",
+  "scripts": {
+    "scrape": "node scripts/scrape-assets.js",
+    "scrape:headful": "HEADFUL=1 node scripts/scrape-assets.js",
+    "scrape:votes": "node scripts/scrape-vote-pages.js",
+    "scrape:votes:headful": "HEADFUL=1 node scripts/scrape-vote-pages.js"
+  },
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}
