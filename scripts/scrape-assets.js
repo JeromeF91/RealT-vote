@@ -184,9 +184,14 @@ async function main() {
       try {
         if (res.request().resourceType() !== 'fetch' && res.request().resourceType() !== 'xhr') return;
         const ct = res.headers()['content-type'] || '';
-        if (!ct.includes('json') && !ct.includes('text')) return;
+        if (!ct.includes('json') && !ct.includes('text') && !ct.includes('markdown')) return;
         const text = await res.text();
-        if (text && (text.includes('Listing Price') || text.includes('Estimated total cost'))) {
+        if (!text || text.length > 500000) return;
+        if (
+          text.includes('Listing Price') ||
+          text.includes('Estimated total cost') ||
+          (text.includes('gross asking price') && /\d{4,}/.test(text))
+        ) {
           capturedProposalBodies.push(text);
         }
       } catch (_) {}
@@ -279,15 +284,19 @@ async function main() {
 
         if ((listingPriceUsd == null && feesUsd == null) && voteUrl) {
           const beforeCapture = capturedProposalBodies.length;
-          await page.goto(voteUrl, { waitUntil: 'networkidle2', timeout: 15000 });
+          await page.goto(voteUrl, { waitUntil: 'networkidle2', timeout: 25000 });
           await page.waitForFunction(
             () => {
               const t = document.body?.innerText || '';
               return t.includes('Listing Price') || t.includes('USD') || t.length > 1000;
             },
-            { timeout: 10000 }
+            { timeout: 20000 }
           ).catch(() => {});
-          await new Promise((r) => setTimeout(r, 4000));
+          await new Promise((r) => setTimeout(r, 3000));
+          await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+          await new Promise((r) => setTimeout(r, 3000));
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await new Promise((r) => setTimeout(r, 2000));
           let text = await page.evaluate(() => document.body?.innerText || '');
           let extracted = extractListingPriceAndFees(text);
           if ((extracted.listingPriceUsd == null && extracted.feesUsd == null) && capturedProposalBodies.length > beforeCapture) {

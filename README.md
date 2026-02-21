@@ -34,13 +34,16 @@ npm run scrape -- --out assets.csv
 node scripts/fetch-asset-ids-from-api.js --out asset-ids.txt
 ```
 
-To get listing price and fees to actually fill, the vote pages must load the proposal body—run with a visible browser and wallet connected to **Gnosis**:
+**Getting listing price and fees (they’re on the vote page):**  
+In headless mode the vote page often doesn’t load the proposal body, so those columns stay empty. To fill them, run with a **visible browser** and **connect your wallet to Gnosis** so the vote page can load the proposal text; then run:
 
 ```bash
-npm run scrape:headful -- --out assets.csv
+npm run scrape:headful -- --from-api --out assets.csv
 ```
 
-Output columns: `name`, `listing_price_usd`, `fees_usd`, `asset_url`.
+The script will open each vote URL, wait for the page content, and extract “Listing Price” and “Estimated total cost of sales” from the visible text.
+
+Output columns: `name`, `listing_price_usd`, `fees_usd`, `asset_url`, `vote_url`.
 
 ---
 
